@@ -76,3 +76,11 @@ Memory Usage Worker (`exampleWorker_MemoryUsage.js`)
 ----
 
 This worker simulates memory usage by allocating specified memory for a given duration.
+
+
+
+
+
+License
+------------------
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
