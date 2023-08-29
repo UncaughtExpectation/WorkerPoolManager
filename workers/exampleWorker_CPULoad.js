@@ -1,4 +1,4 @@
-// Define constants for message types.
+// Constants for different message types.
 const MESSAGE_TYPES = {
   INIT: "init",
   WORK: "work",
@@ -8,7 +8,7 @@ const MESSAGE_TYPES = {
   ERROR: "error",
 };
 
-// Event listener for incoming messages from the main process.
+// Listen for messages from the main process.
 process.on("message", async (task) => {
   try {
     await processTask(task);
@@ -18,8 +18,8 @@ process.on("message", async (task) => {
 });
 
 /**
- * Handle incoming tasks based on their type.
- * @param {Object} task - The incoming task.
+ * Processes incoming tasks based on their type.
+ * @param {Object} task - The task to be processed.
  */
 async function processTask(task) {
   let response = {
@@ -52,9 +52,9 @@ async function processTask(task) {
 }
 
 /**
- * Handle errors that occur during task processing.
- * @param {Object} task - The task that caused the error.
- * @param {Error} err - The error that occurred.
+ * Reports errors encountered during task processing.
+ * @param {Object} task - The task that triggered the error.
+ * @param {Error} err - The encountered error.
  */
 function reportError(task, err) {
   console.error(`WorkerProcess ${process.pid}: ${err.message}`);
@@ -87,8 +87,9 @@ function init() {
 }
 
 /**
- * @param {Object} task - The task to process.
- * @returns {string} - A message indicating the work is done.
+ * Processes a given task.
+ * @param {Object} task - The task to be processed.
+ * @returns {Object} - The processed task.
  */
 async function work(task) {
   if (task) {
@@ -99,7 +100,10 @@ async function work(task) {
   return task;
 }
 
-
+/**
+ * Simulates CPU load for a given duration.
+ * @param {number} ms - Duration in milliseconds.
+ */
 async function generateCPULoad(ms = 2000) {
   const start = performance.now();
   const end = start + ms;

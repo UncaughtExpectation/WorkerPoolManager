@@ -1,7 +1,7 @@
-const { fork } = require("child_process");
-const pidusage = require("pidusage");
+const { fork } = require("child_process"); // The 'child_process' module provides the ability to spawn subprocesses. The 'fork' method is a special case of 'spawn' that spawns a new instance of the V8 engine. 
+const pidusage = require("pidusage"); // 'pidusage' is a library that provides information about the resource usage (CPU and memory) of a process based on its PID (Process ID). 
 
-// Define constants for message types to avoid typos and improve readability.
+// Constants for different message types to ensure consistency and clarity.
 const MESSAGE_TYPES = {
   INIT: "init",
   INIT_DONE: "initDone",
@@ -23,8 +23,10 @@ class WorkerPool {
   }
 
   /**
-   * Initialize worker processes.
-   * @param {number} workerCount - Number of workers to initialize.
+   * Spawns worker processes.
+   * @param {number} workerCount - The number of worker processes to spawn.
+   * @param {string} workerJS_path - Path to the worker's JavaScript file.
+   * @param {string} group - Name of the worker group.
    */
   spawnWorkers(workerCount = 2, workerJS_path, group = "default") {
     // Initialize the group if not already present
@@ -51,9 +53,9 @@ class WorkerPool {
   }
 
   /**
-   * Handle messages received from workers.
-   * @param {Object} worker - The worker that sent the message.
-   * @param {Object} message - The message received.
+   * Processes messages received from worker processes.
+   * @param {Object} worker - The worker sending the message.
+   * @param {Object} message - The actual message content.
    */
   processWorkerMessage(worker, message) {
     if (!message) return;
@@ -78,10 +80,11 @@ class WorkerPool {
   }
 
   /**
-   * Handle worker exit events.
-   * @param {Object} exitedWorker - The worker that exited.
-   * @param {number} code - Exit code.
-   * @param {string} signal - Signal that caused the exit.
+   * Manages the exit events of worker processes.
+   * @param {Object} exitedWorker - The worker that has exited.
+   * @param {string} group - The group the worker belongs to.
+   * @param {number} code - The exit code.
+   * @param {string} signal - The signal causing the exit.
    */
   manageWorkerExit(exitedWorker, code, signal, group = "default") {
     console.warn(
@@ -95,8 +98,9 @@ class WorkerPool {
       this.spawnWorkers(1, group);
     }
   }
+
   /**
-   * Execute the next task in the queue.
+   * Processes the next task in the queue, if available.
    */
   processNextTask() {
     if (!this.pendingTasks.length) return;
@@ -114,9 +118,10 @@ class WorkerPool {
   }
 
   /**
-   * Add a task to the worker task queue.
-   * @param {Object} task - The task to be processed.
-   * @param {Function} callback - Callback to be executed once the task is done.
+   * Adds a task to the queue for processing by worker processes.
+   * @param {Object} task - The task to be added.
+   * @param {Function} callback - The function to call once the task is processed.
+   * @param {string} group - The group the task belongs to.
    */
   addWorkerTask(task, callback, group = "default") {
     task.group = group;
@@ -125,8 +130,9 @@ class WorkerPool {
   }
 
   /**
-   * Get the status of all workers.
-   * @returns {Object} - An object containing the status of all workers.
+   * Retrieves the status of all or specific group of workers.
+   * @param {string} workerGroup - The group of workers to retrieve status for.
+   * @returns {Object} - Object containing the status of the workers.
    */
   async getWorkerStatus(workerGroup = null) {
     // Get workers from the specified group, or all workers if no group is specified.
@@ -147,7 +153,8 @@ class WorkerPool {
   }
 
   /**
-   * Terminate all workers.
+   * Terminates all workers or a specific group of workers.
+   * @param {string} group - The group of workers to terminate.
    */
   terminateWorkers(group = null) {
     const workersToTerminate = group

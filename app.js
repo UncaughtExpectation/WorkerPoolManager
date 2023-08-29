@@ -1,11 +1,12 @@
-const exampleWorkerManager = require("./workerManager");
-const express = require("express");
-const bodyParser = require("body-parser");
-const { v4: uuidv4 } = require("uuid");
-const logger = require("./logger");
-const config = require('config');
 
-// Configuration values from the config module
+const exampleWorkerManager = require("./workerManager"); // Imports the worker manager module, which handles the creation, management, and communication with worker processes.
+const express = require("express"); // Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
+const bodyParser = require("body-parser"); // body-parser is a middleware used to extract the entire body portion of an incoming request stream and exposes it on `req.body`. It's used to parse incoming request bodies in a middleware before your handlers.
+const { v4: uuidv4 } = require("uuid"); // The 'uuid' library is used to generate universally unique identifiers (UUIDs). Here, we're specifically using the v4 method, which produces random UUIDs.
+const logger = require("./logger"); // Imports a custom logger module based on the 'winston' module
+const config = require('config'); // The 'config' module provides a way to organize hierarchical configurations for your app deployments. It lets you define a set of default parameters, and extend them for different deployment environments (e.g., development, QA, production).
+
+// Configuration values from the file /config/default.js
 const PORT = config.get('server.port');
 const REQUEST_BODY_LIMIT = config.get('server.requestBodyLimit');
 
@@ -19,6 +20,10 @@ app.use(bodyParser.json({ limit: REQUEST_BODY_LIMIT }));
 
 initializeServer();
 
+/**
+ * Initializes the server by spawning worker processes, setting up HTTP routes, 
+ * and registering process termination handlers.
+ */
 function initializeServer() {
     exampleWorkerManager.spawnWorkers(2, './workers/exampleWorker_CPULoad.js', 'CPU');
     exampleWorkerManager.spawnWorkers(2, './workers/exampleWorker_MemoryUsage.js', 'MEM');
@@ -29,6 +34,7 @@ function initializeServer() {
         logWorkerStats();
     }, 1000);
 
+    // Set up HTTP routes for the server
     setupHTTP_routes();
 
     // Start the HTTP server on the configured port
@@ -42,13 +48,19 @@ function initializeServer() {
     process.on("SIGTERM", processTermination); // Handle kill command
 }
 
+/**
+ * Handles the termination of the process by shutting down worker processes gracefully.
+ */
 function processTermination() {
-    // Terminate the worker processes gracefully
     exampleWorkerManager.terminateWorkers('CPU');
     exampleWorkerManager.terminateWorkers('MEM');
     process.exit(0);
 }
 
+/**
+ * Logs the status of workers, including their CPU and memory usage.
+ * @param {string|null} workerGroup - The group of workers to retrieve status for (optional).
+ */
 async function logWorkerStats(workerGroup = null) {
     const statuses = await exampleWorkerManager.getWorkerStatus(workerGroup);
     for (const worker of statuses.workers) {
@@ -57,8 +69,11 @@ async function logWorkerStats(workerGroup = null) {
     console.log("---------------------------");
 }
 
+/**
+ * Sets up HTTP routes for dispatching tasks to workers.
+ */
 function setupHTTP_routes() {
-    // Define the endpoint to send a task to a worker
+    // Endpoint to dispatch a CPU load task to a worker
     app.post(`/exampleWorker/CPULoad`, async (req, res) => {
         try {
             exampleWorkerManager.addWorkerTask({ id: uuidv4(), type: "work", data: req.body },
@@ -76,6 +91,7 @@ function setupHTTP_routes() {
         }
     });
 
+    // Endpoint to dispatch a memory usage task to a worker
     app.post(`/exampleWorker/MemoryUsage`, async (req, res) => {
         try {
             exampleWorkerManager.addWorkerTask({ id: uuidv4(), type: "work", data: req.body },
