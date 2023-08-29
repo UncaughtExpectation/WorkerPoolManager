@@ -1,13 +1,12 @@
-# Node.js Worker Pool Management System
+# Node.js Worker Pool Management
 
-This project provides a system to manage worker processes in Node.js. 
-It includes a main server that spawns and manages worker processes using a worker manager.
+A Node.js application that showcases the organization and management of child processes ("workers") within distinct pools. 
+It handles callbacks for the child processes, a feature not directly supported by Node.js's native child-process module.
 
-The system is designed to manage multiple worker pools (groups). 
-Each worker pool can have multiple worker processes associated with it. 
+It allows for easy definition and grouping of processes based on specific use cases.
 
-When a task is sent to a specific worker pool, the worker manager assigns the task to the worker within that pool with the fewest currently running tasks. 
-This ensures efficient load distribution among the workers.
+When a task is sent to a specific worker pool, the worker manager assigns the task to the worker within that pool 
+with the fewest currently running tasks. This ensures efficient load distribution among the workers.
 
 ## Table of Contents
 
@@ -15,7 +14,6 @@ This ensures efficient load distribution among the workers.
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Worker Processes](#worker-processes)
-- [Worker Pool Management](#worker-pool-management)
 
 ## Installation
 
