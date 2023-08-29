@@ -8,6 +8,8 @@ It allows for easy definition and grouping of processes based on specific use ca
 When a task is sent to a specific worker pool, the worker manager assigns the task to the worker within that pool 
 with the fewest currently running tasks. This ensures efficient load distribution among the workers.
 
+To evaluate the workers and their load distribution, two HTTP endpoints are provided. Each endpoint simulates workload in distinct worker pools.
+
 ## Table of Contents
 
 - [Installation](#installation)
