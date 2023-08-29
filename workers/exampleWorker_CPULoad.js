@@ -96,7 +96,7 @@ async function work(task) {
     await generateCPULoad(task.data.duration)
     //throw new Error('This is a test error.');
   }
-  return "work is done!";
+  return task;
 }
 
 
