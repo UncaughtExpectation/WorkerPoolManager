@@ -61,7 +61,6 @@ Memory Usage Worker
 
 **Example**:
 
-     bash
      curl -X POST http://localhost:3000/exampleWorker/MemoryUsage \
           -H "Content-Type: application/json" \
           -d '{"duration":3000, "mb":300}'
