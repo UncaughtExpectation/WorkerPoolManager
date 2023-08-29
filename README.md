@@ -1,10 +1,10 @@
 # Node.js WorkerPoolManager
 
 Demonstrates the organization and management of child processes, referred to as "workers", within dedicated pools. 
-Provides callback handling and load balancing
+Provides callback handling and load balancing.
 
-For testing and simulating worker load distribution, two HTTP endpoints are included. 
-Each endpoint triggers workloads in different worker pools.
+For testing and simulating worker load distribution, 
+two HTTP endpoints can receive workloads for the example pools 'CPU' and 'MEM'.
 
 
 Install
