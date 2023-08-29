@@ -26,7 +26,7 @@ Usage
 
 To start the server:
 
-	npm node app.js
+	node app.js
 
 
 API Endpoints
