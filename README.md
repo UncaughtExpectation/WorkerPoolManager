@@ -12,35 +12,28 @@ For testing and simulating worker load distribution, two HTTP endpoints are incl
 Each endpoint triggers workloads in different worker pools.
 
 
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Worker Processes](#worker-processes)
-
-## Installation
+Install
+-------
 
 1. Ensure you have Node.js installed.
 2. Clone the repository.
 3. Install the required packages:
 
-\```bash
-npm install
-\```
+	npm install
 
-## Usage
+Usage
+-----
 
 To start the server:
 
-\```bash
-node app.js
-\```
+	npm node app.js
 
-## API Endpoints
 
-### 1. CPU Load Worker
+API Endpoints
+------------------
+
+CPU Load Worker
+----
 
 **Endpoint**: `POST /exampleWorker/CPULoad`
 
@@ -51,13 +44,12 @@ node app.js
 
 **Example**:
 
-\```bash
-curl -X POST http://localhost:3000/exampleWorker/CPULoad \
-     -H "Content-Type: application/json" \
-     -d '{"duration":3000}'
-\```
+     curl -X POST http://localhost:3000/exampleWorker/CPULoad \
+          -H "Content-Type: application/json" \
+          -d '{"duration":3000}'
 
-### 2. Memory Usage Worker
+Memory Usage Worker
+----
 
 **Endpoint**: `POST /exampleWorker/MemoryUsage`
 
@@ -69,20 +61,19 @@ curl -X POST http://localhost:3000/exampleWorker/CPULoad \
 
 **Example**:
 
-\```bash
-curl -X POST http://localhost:3000/exampleWorker/MemoryUsage \
-     -H "Content-Type: application/json" \
-     -d '{"duration":3000, "mb":300}'
-\```
+     bash
+     curl -X POST http://localhost:3000/exampleWorker/MemoryUsage \
+          -H "Content-Type: application/json" \
+          -d '{"duration":3000, "mb":300}'
 
-## Worker Processes
+Worker Processes
+------------------
 
-### 1. CPU Load Worker (`exampleWorker_CPULoad.js`)
-
+CPU Load Worker (`exampleWorker_CPULoad.js`)
+----
 This worker simulates CPU load for a given duration.
 
-### 2. Memory Usage Worker (`exampleWorker_MemoryUsage.js`)
+Memory Usage Worker (`exampleWorker_MemoryUsage.js`)
+----
 
 This worker simulates memory usage by allocating specified memory for a given duration.
-
-
