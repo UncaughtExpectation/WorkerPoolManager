@@ -6,8 +6,7 @@ Unlike the native child-process module in Node.js, this application provides cal
 The design facilitates the clear definition and grouping of processes based on specific requirements. 
 The architecture is built for extensibility, making it easy to add new workers and expand core functionalities.
 
-When a task is dispatched to a given worker pool, 
-the worker manager allocates it to the worker with the fewest active tasks, ensuring optimal load balancing.
+When a task is dispatched to a given worker pool, the worker manager allocates it to the worker with the fewest active tasks, ensuring load balancing.
 
 For testing and simulating worker load distribution, two HTTP endpoints are included. 
 Each endpoint triggers workloads in different worker pools.
