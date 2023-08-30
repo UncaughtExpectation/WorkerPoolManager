@@ -36,7 +36,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
    - **Memory Limit**: 4048 MB
 
 
-## Dispatching Tasks to Worker Pools
+## Dispatching Tasks to example Worker Pools
 
 Send a POST request to `/example/pool` with the following body:
 
@@ -47,7 +47,7 @@ Send a POST request to `/example/pool` with the following body:
 }
 ```
 
-### Dispatching Tasks to One-shot Processes
+### Dispatching Tasks to example One-shot Processes
 
 Send a POST request to `/example/oneShot` with the following body:
 
