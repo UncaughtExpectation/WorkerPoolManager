@@ -44,8 +44,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 
 ## Dispatching Tasks for the Example Worker Pools
 
-Send a POST request to `/example/pool` with the following body:
-
+Send a POST request to `/example/pool` with the following payload:
 ```json
 {
   "poolName": "<Name of the worker pool>",
@@ -53,7 +52,6 @@ Send a POST request to `/example/pool` with the following body:
 }
 ```
 ### Example Requests
-   - **Endpoint**: `/example/pool`
    - **Payload**:
      ```json
      {
@@ -71,8 +69,7 @@ Send a POST request to `/example/pool` with the following body:
      
 ## Dispatching Tasks for Example One-Shot Worker
 
-Send a POST request to `/example/oneShot` with the following body:
-
+Send a POST request to `/example/oneShot` with the following payload:
 ```json
 {
   "workerScript": "<Path to the worker's JavaScript file>",
@@ -81,7 +78,6 @@ Send a POST request to `/example/oneShot` with the following body:
 }
 ```    
 ### Example Requests
-   - **Endpoint**: `/example/oneShot`
    - **Payload**:
      ```json
      {
