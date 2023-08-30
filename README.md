@@ -60,8 +60,8 @@ Send a POST request to `/example/oneShot` with the following body:
 ```json
 {
   "workerScript": "<Path to the worker's JavaScript file>",
-  "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>",
-  "workerTask": "<Task data>"
+  "workerTask": "<Task data>",
+  "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
 }
 ```
 
@@ -70,14 +70,15 @@ Send a POST request to `/example/oneShot` with the following body:
    - **Payload**:
      ```json
      {
-       "workerTask": { "duration": 3000 },
-       "poolName": "CPU"
+       "poolName": "CPU",
+       "workerTask": { "duration": 3000 }
      }
      ```
      ```json
      {
-       "workerTask": { "duration": 3000, "mb": 300 },
-       "poolName": "MEM"
+       
+       "poolName": "MEM",
+       "workerTask": { "duration": 3000, "mb": 300 }
      }
      ```
      
@@ -86,14 +87,15 @@ Send a POST request to `/example/oneShot` with the following body:
    - **Payload**:
      ```json
      {
+       "workerScript": "./workers/exampleWorker_CPULoad.js",
        "workerTask": { "duration": 3000 },
-       "workerScript": "./workers/exampleWorker_CPULoad.js"
+       "workerMemoryLimit": 2048
      }
      ```
      ```json
      {
-       "workerTask": { "duration": 3000, "mb": 300 },
        "workerScript": "./workers/exampleWorker_MemoryUsage.js",
+       "workerTask": { "duration": 3000, "mb": 300 },
        "workerMemoryLimit": 4096
      }
      ```
