@@ -45,7 +45,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 ### Send a POST request to `/example/pool` with the following payload:
      {
        "poolName": "<Name of the worker pool>",
-       "workerTask": "<Task data>"
+       "workerTask": {<Task data>}
      }
 #### Example Requests
 ###### Generate CPU usage
@@ -63,7 +63,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 ### Send a POST request to `/example/oneShot` with the following payload:
     {
       "workerScript": "<Path to the worker's JavaScript file>",
-      "workerTask": "<Task data>",
+      "workerTask": {<Task data>},
       "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
     }  
 #### Example Requests
