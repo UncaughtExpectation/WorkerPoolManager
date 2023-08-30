@@ -61,11 +61,11 @@ The configuration file (`config/default.json`) has two predefined worker pools:
      
 ## Dispatching Tasks for One-Shot Workers
 ### Send a POST request to `/example/oneShot` with the following payload:
-  {
-    "workerScript": "<Path to the worker's JavaScript file>",
-    "workerTask": "<Task data>",
-    "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
-  }  
+    {
+      "workerScript": "<Path to the worker's JavaScript file>",
+      "workerTask": "<Task data>",
+      "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
+    }  
 #### Example Requests
 ###### Generate CPU usage
      {
