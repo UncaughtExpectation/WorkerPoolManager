@@ -20,9 +20,9 @@ The `examples/example_node_red_flow.json` file provides a Node-RED flow to send 
 4. Start the server using `node app.js`.
 
 
-### Examples
+## Examples
 
-## Example Worker Pools
+### Example Worker Pools
 
 The configuration file (`config/default.json`) has two predefined worker pools:
 
@@ -42,7 +42,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 
 2. *Memory Usage Worker* (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
-## Dispatching Tasks to example Worker Pools
+### Dispatching Tasks to example Worker Pools
 
 Send a POST request to `/example/pool` with the following body:
 
@@ -53,7 +53,7 @@ Send a POST request to `/example/pool` with the following body:
 }
 ```
 
-## Dispatching Tasks to example One-shot Processes
+### Dispatching Tasks to example One-shot Processes
 
 Send a POST request to `/example/oneShot` with the following body:
 
