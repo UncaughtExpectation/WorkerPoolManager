@@ -52,7 +52,6 @@ Send a POST request to `/example/pool` with the following payload:
 }
 ```
 ### Example Requests
-   - **Payload**:
      ```json
      {
        "poolName": "CPU",
@@ -78,7 +77,6 @@ Send a POST request to `/example/oneShot` with the following payload:
 }
 ```    
 ### Example Requests
-   - **Payload**:
      ```json
      {
        "workerScript": "./workers/exampleWorker_CPULoad.js",
