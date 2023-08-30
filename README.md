@@ -1,6 +1,6 @@
 # Node.js WorkerPoolManager
 
-This repository demonstrates the organization and management of child processes, referred to as "workers", within dedicated pools. It provides callback handling and load balancing.
+This repository demonstrates the organization and management of NodeJS child processes, referred to as "workers", within dedicated pools. It provides callback handling and load balancing. The config/default.json includes a working configuration for testing with the provided test http endpoints
 
 The `examples/example_node_red_flow.json` file provides a Node-RED flow to send example requests to the server.
 
