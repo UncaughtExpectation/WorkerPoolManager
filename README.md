@@ -68,7 +68,7 @@ Send a POST request to `/example/oneShot` with the following body:
 ### Example Requests
 
 
-*CPU Worker Pool Request**:
+**CPU Worker Pool Request**:
    - **Endpoint**: `/example/pool`
    - **Payload**:
      ```json
