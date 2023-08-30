@@ -65,7 +65,7 @@ Send a POST request to `/example/oneShot` with the following body:
 }
 ```
 
-**Example Requests**:
+### Example Requests for Pool Workers
    - **Endpoint**: `/example/pool`
    - **Payload**:
      ```json
@@ -81,7 +81,7 @@ Send a POST request to `/example/oneShot` with the following body:
      }
      ```
      
-**Example Requests to One-Shot Workers**:
+#### Example Requests for One-Shot Workers
    - **Endpoint**: `/example/oneShot`
    - **Payload**:
      ```json
