@@ -45,49 +45,36 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 ## Dispatching Tasks for the Example Worker Pools
 
 Send a POST request to `/example/pool` with the following payload:
-```json
-{
-  "poolName": "<Name of the worker pool>",
-  "workerTask": "<Task data>"
-}
-```
+     {
+       "poolName": "<Name of the worker pool>",
+       "workerTask": {<Task data>}
+     }
 ### Example Requests
-     ```json
      {
        "poolName": "CPU",
        "workerTask": { "duration": 3000 }
      }
-     ```
-     ```json
      {
        
        "poolName": "MEM",
        "workerTask": { "duration": 3000, "mb": 300 }
      }
-     ```
      
 ## Dispatching Tasks for Example One-Shot Worker
-
 Send a POST request to `/example/oneShot` with the following payload:
-```json
 {
   "workerScript": "<Path to the worker's JavaScript file>",
   "workerTask": "<Task data>",
   "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
-}
-```    
+}  
 ### Example Requests
-     ```json
      {
        "workerScript": "./workers/exampleWorker_CPULoad.js",
        "workerTask": { "duration": 3000 },
        "workerMemoryLimit": 2048
      }
-     ```
-     ```json
      {
        "workerScript": "./workers/exampleWorker_MemoryUsage.js",
        "workerTask": { "duration": 3000, "mb": 300 },
        "workerMemoryLimit": 4096
      }
-     ```
