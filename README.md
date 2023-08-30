@@ -19,22 +19,28 @@ The `examples/example_node_red_flow.json` file provides a Node-RED flow to send 
 3. Run `npm install` to install the required dependencies.
 4. Start the server using `node app.js`.
 
-## Default Worker Pools
+
+### Examples
+
+## Example Worker Pools
 
 The configuration file (`config/default.json`) has two predefined worker pools:
 
 1. **CPU Worker Pool**:
    - **Pool Name**: CPU
    - **Worker Script**: `./workers/exampleWorker_CPULoad.js`
-   - **Worker Count**: 1
+   - **Worker Count**: 2
    - **Memory Limit**: 4048 MB
 
 2. **Memory Worker Pool**:
    - **Pool Name**: MEM
    - **Worker Script**: `./workers/exampleWorker_MemoryUsage.js`
-   - **Worker Count**: 1
+   - **Worker Count**: 2
    - **Memory Limit**: 4048 MB
 
+1. *CPU Load Worker* (`./workers/exampleWorker_CPULoad.js`): This worker simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
+
+2. *Memory Usage Worker* (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
 ## Dispatching Tasks to example Worker Pools
 
@@ -47,7 +53,7 @@ Send a POST request to `/example/pool` with the following body:
 }
 ```
 
-### Dispatching Tasks to example One-shot Processes
+## Dispatching Tasks to example One-shot Processes
 
 Send a POST request to `/example/oneShot` with the following body:
 
@@ -59,14 +65,7 @@ Send a POST request to `/example/oneShot` with the following body:
 }
 ```
 
-### Example Workers
-
-1. **CPU Load Worker** (`./workers/exampleWorker_CPULoad.js`): This worker simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
-
-2. **Memory Usage Worker** (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
-
-
-**Example Requests to Pool Workers**:
+**Example Requests**:
    - **Endpoint**: `/example/pool`
    - **Payload**:
      ```json
