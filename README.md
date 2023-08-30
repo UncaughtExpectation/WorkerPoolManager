@@ -65,10 +65,8 @@ Send a POST request to `/example/oneShot` with the following body:
 
 2. **Memory Usage Worker** (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
-### Example Requests
 
-
-**CPU Worker Pool Request**:
+**Example Requests to Pool Workers**:
    - **Endpoint**: `/example/pool`
    - **Payload**:
      ```json
@@ -77,18 +75,14 @@ Send a POST request to `/example/oneShot` with the following body:
        "poolName": "CPU"
      }
      ```
-
-**Memory Worker Pool Request**:
-   - **Endpoint**: `/example/pool`
-   - **Payload**:
      ```json
      {
        "workerTask": { "duration": 3000, "mb": 300 },
        "poolName": "MEM"
      }
      ```
-
-**One-shot Worker Request (CPU Load)**:
+     
+**Example Requests to One-Shot Workers**:
    - **Endpoint**: `/example/oneShot`
    - **Payload**:
      ```json
@@ -97,10 +91,6 @@ Send a POST request to `/example/oneShot` with the following body:
        "workerScript": "./workers/exampleWorker_CPULoad.js"
      }
      ```
-
-**One-shot Worker Request (Memory Usage)**:
-   - **Endpoint**: `/example/oneShot`
-   - **Payload**:
      ```json
      {
        "workerTask": { "duration": 3000, "mb": 300 },
