@@ -1,81 +1,103 @@
 # Node.js WorkerPoolManager
 
-Demonstrates the organization and management of child processes, referred to as "workers", within dedicated pools. 
-Provides callback handling and load balancing.
+This repository demonstrates the organization and management of child processes, referred to as "workers", within dedicated pools. It provides callback handling and load balancing.
 
-For testing and simulating worker load distribution, 
-two HTTP endpoints can receive workloads for the example pools 'CPU' and 'MEM'.
+The `examples/example_node_red_flow.json` file provides a Node-RED flow to send example requests to the server.
 
+## Features
 
-Install
--------
+- **Worker Pools**: Organize workers into dedicated pools.
+- **One-shot Workers**: Execute tasks in one-shot processes that terminate after task completion.
+- **HTTP Endpoints**:
+  - `/example/pool`: Dispatch tasks to workers in a pool.
+  - `/example/oneShot`: Execute tasks in one-shot processes.
+
+## Installation
 
 1. Ensure you have Node.js installed.
 2. Clone the repository.
-3. Install the required packages:
+3. Run `npm install` to install the required dependencies.
+4. Start the server using `node app.js`.
 
-	npm install
+## Default Worker Pools
 
-Usage
------
+The configuration file (`config/default.json`) has two predefined worker pools:
 
-To start the server:
+1. **CPU Worker Pool**:
+   - **Pool Name**: CPU
+   - **Worker Script**: `./workers/exampleWorker_CPULoad.js`
+   - **Worker Count**: 1
+   - **Memory Limit**: 4048 MB
 
-	node app.js
-
-
-API Endpoints
-------------------
-
-CPU Load Worker
-----
-
-**Endpoint**: `POST /exampleWorker/CPULoad`
-
-**Description**: Sends a task to the example worker pool 'CPU'.
-
-**Payload**: 
-- `duration`: Duration in milliseconds for which CPU load should be simulated.
-
-**Example**:
-
-     curl -X POST http://localhost:3000/exampleWorker/CPULoad \
-          -H "Content-Type: application/json" \
-          -d '{"duration":3000}'
-
-Memory Usage Worker
-----
-
-**Endpoint**: `POST /exampleWorker/MemoryUsage`
-
-**Description**: Sends a task to the example worker pool 'MEM'.
-
-**Payload**: 
-- `duration`: Duration in milliseconds for which memory should be allocated.
-- `mb`: Amount of memory in megabytes to allocate.
-
-**Example**:
-
-     curl -X POST http://localhost:3000/exampleWorker/MemoryUsage \
-          -H "Content-Type: application/json" \
-          -d '{"duration":3000, "mb":300}'
-
-Worker Processes
-------------------
-
-CPU Load Worker (`exampleWorker_CPULoad.js`)
-----
-This worker simulates CPU load for a given duration.
-
-Memory Usage Worker (`exampleWorker_MemoryUsage.js`)
-----
-
-This worker simulates memory usage by allocating specified memory for a given duration.
+2. **Memory Worker Pool**:
+   - **Pool Name**: MEM
+   - **Worker Script**: `./workers/exampleWorker_MemoryUsage.js`
+   - **Worker Count**: 1
+   - **Memory Limit**: 4048 MB
 
 
+## Dispatching Tasks to Worker Pools
+
+Send a POST request to `/example/pool` with the following body:
+
+```json
+{
+  "poolName": "<Name of the worker pool>",
+  "workerTask": "<Task data>"
+}
+```
+
+### Dispatching Tasks to One-shot Processes
+
+Send a POST request to `/example/oneShot` with the following body:
+
+```json
+{
+  "workerScript": "<Path to the worker's JavaScript file>",
+  "workerMemoryLimit": "<Memory limit in MB>",
+  "workerTask": "<Task data>"
+}
+```
+
+### Example Requests
 
 
+**CPU Worker Pool Request**:
+   - **Endpoint**: `/example/pool`
+   - **Payload**:
+     ```json
+     {
+       "workerTask": { "duration": 3000 },
+       "poolName": "CPU"
+     }
+     ```
 
-License
-------------------
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Memory Worker Pool Request**:
+   - **Endpoint**: `/example/pool`
+   - **Payload**:
+     ```json
+     {
+       "workerTask": { "duration": 3000, "mb": 300 },
+       "poolName": "MEM"
+     }
+     ```
+
+**One-shot Worker Request (CPU Load)**:
+   - **Endpoint**: `/example/oneShot`
+   - **Payload**:
+     ```json
+     {
+       "workerTask": { "duration": 3000 },
+       "workerScript": "./workers/exampleWorker_CPULoad.js"
+     }
+     ```
+
+**One-shot Worker Request (Memory Usage)**:
+   - **Endpoint**: `/example/oneShot`
+   - **Payload**:
+     ```json
+     {
+       "workerTask": { "duration": 3000, "mb": 300 },
+       "workerScript": "./workers/exampleWorker_MemoryUsage.js",
+       "workerMemoryLimit": 4096
+     }
