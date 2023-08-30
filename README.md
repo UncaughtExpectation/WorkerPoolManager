@@ -54,6 +54,7 @@ Send a POST request to `/example/pool` with the following payload:
        "poolName": "CPU",
        "workerTask": { "duration": 3000 }
      }
+
      {
        
        "poolName": "MEM",
@@ -73,6 +74,7 @@ Send a POST request to `/example/oneShot` with the following payload:
        "workerTask": { "duration": 3000 },
        "workerMemoryLimit": 2048
      }
+
      {
        "workerScript": "./workers/exampleWorker_MemoryUsage.js",
        "workerTask": { "duration": 3000, "mb": 300 },
