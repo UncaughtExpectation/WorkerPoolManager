@@ -38,44 +38,42 @@ The configuration file (`config/default.json`) has two predefined worker pools:
    - **Worker Count**: 2
    - **Memory Limit**: 4048 MB
 
-*CPU Load Worker* (`./workers/exampleWorker_CPULoad.js`): This worker simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
-
-*Memory Usage Worker* (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
+`./workers/exampleWorker_CPULoad.js` This worker script simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
+`./workers/exampleWorker_MemoryUsage.js` This worker script simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
 ## Dispatching Tasks for the Example Worker Pools
-Send a POST request to `/example/pool` with the following payload:
+### Send a POST request to `/example/pool` with the following payload:
      {
-       "poolName": <Name of the worker pool>,
-       "workerTask": <Task data>
+       "poolName": "<Name of the worker pool>",
+       "workerTask": "<Task data>"
      }
-### Example Requests
-##### Generate CPU usage
+#### Example Requests
+###### Generate CPU usage
      {
        "poolName": "CPU",
        "workerTask": { "duration": 3000 }
      }
-##### Generate Memory usage
+###### Generate Memory usage
      {
        "poolName": "MEM",
        "workerTask": { "duration": 3000, "mb": 300 }
      }
      
-## Dispatching Tasks for Example One-Shot Worker
-Send a POST request to `/example/oneShot` with the following payload:
-
-{
-  "workerScript": "<Path to the worker's JavaScript file>",
-  "workerTask": "<Task data>",
-  "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
-}  
-### Example Requests
-##### Generate CPU usage
+## Dispatching Tasks for One-Shot Workers
+### Send a POST request to `/example/oneShot` with the following payload:
+  {
+    "workerScript": "<Path to the worker's JavaScript file>",
+    "workerTask": "<Task data>",
+    "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
+  }  
+#### Example Requests
+###### Generate CPU usage
      {
        "workerScript": "./workers/exampleWorker_CPULoad.js",
        "workerTask": { "duration": 3000 },
        "workerMemoryLimit": 2048
      }
-##### Generate Memory usage
+###### Generate Memory usage
      {
        "workerScript": "./workers/exampleWorker_MemoryUsage.js",
        "workerTask": { "duration": 3000, "mb": 300 },
