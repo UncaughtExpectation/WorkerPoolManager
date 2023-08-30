@@ -25,11 +25,11 @@ initializeServer();
  * and registering process termination handlers.
  */
 function initializeServer() {
-    exampleWorkerManager.spawnWorkers(2, './workers/exampleWorker_CPULoad.js', 'CPU');
-    exampleWorkerManager.spawnWorkers(2, './workers/exampleWorker_MemoryUsage.js', 'MEM');
+
+
+    exampleWorkerManager.initWorkerPools(config.get('workerPool'))
 
     // Periodically log worker stats mainly for debugging purposes
-
     setInterval(() => {
         logWorkerStats();
     }, 1000);
@@ -59,12 +59,12 @@ function processTermination() {
 
 /**
  * Logs the status of workers, including their CPU and memory usage.
- * @param {string|null} workerGroup - The group of workers to retrieve status for (optional).
+ * @param {string|null} poolName - Name of the worker pool to retrieve status for (optional).
  */
-async function logWorkerStats(workerGroup = null) {
-    const statuses = await exampleWorkerManager.getWorkerStatus(workerGroup);
+async function logWorkerStats(poolName = null) {
+    const statuses = await exampleWorkerManager.getWorkerStatus(poolName);
     for (const worker of statuses.workers) {
-        console.log(`workerGroup ${worker.group}, worker pid ${worker.pid}, cpu:${parseInt(worker.stats.cpu)}% mem:${parseInt(worker.stats.memory / 1000 / 1000)}MB runningTasks:${worker.runningTasks}`);
+        console.log(`Worker stats: poolName ${worker.poolName}, worker pid ${worker.pid}, cpu:${parseInt(worker.stats.cpu)}% mem:${parseInt(worker.stats.memory / 1000 / 1000)}MB runningTasks:${worker.runningTasks}`);
     }
     console.log("---------------------------");
 }

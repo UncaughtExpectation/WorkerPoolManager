@@ -1,5 +1,6 @@
 const { fork } = require("child_process"); // The 'child_process' module provides the ability to spawn subprocesses. The 'fork' method is a special case of 'spawn' that spawns a new instance of the V8 engine. 
 const pidusage = require("pidusage"); // 'pidusage' is a library that provides information about the resource usage (CPU and memory) of a process based on its PID (Process ID). 
+const logger = require("./logger"); // Imports a custom logger module based on the 'winston' module
 
 // Constants for different message types to ensure consistency and clarity.
 const MESSAGE_TYPES = {
@@ -14,41 +15,63 @@ class WorkerPool {
   constructor() {
     // Set to store all active worker processes.
     this.workerSet = new Set();
-    // Map to store worker groups
-    this.workerGroups = new Map();
+    // Map to store worker pools
+    this.workerPools = new Map();
     // Queue to store tasks that need to be processed.
     this.pendingTasks = [];
     // Map to store callbacks associated with tasks.
     this.taskCallbacks = new Map();
   }
 
+  initWorkerPools(workerPoolConfig) {
+    if (!workerPoolConfig) {
+      return false;
+    }
+    for (const config of workerPoolConfig) {
+      if (!config.workerScript) {
+        logger.error(`missing workerScript in worker pool config`);
+        continue;
+      }
+      if (!config.poolName) {
+        logger.error(`missing poolName in worker pool config`);
+        continue;
+      }
+      this.spawnWorkers(config.workerCount || 1, config.workerScript, config.poolName, config.workerMemoryLimit || 1);
+    }
+  }
+
   /**
    * Spawns worker processes.
    * @param {number} workerCount - The number of worker processes to spawn.
    * @param {string} workerJS_path - Path to the worker's JavaScript file.
-   * @param {string} group - Name of the worker group.
+   * @param {string} poolName - Name of the worker pool.
+   * @param {string} memoryLimit - memory limit of the workers (--max-old-space-size)
    */
-  spawnWorkers(workerCount = 2, workerJS_path, group = "default") {
-    // Initialize the group if not already present
-    if (!this.workerGroups.has(group)) {
-      this.workerGroups.set(group, new Set());
+  spawnWorkers(workerCount = 2, workerScript, poolName = "default", memoryLimit = 4096) {
+    // Initialize the pool if not already present
+    if (!this.workerPools.has(poolName)) {
+      this.workerPools.set(poolName, new Set());
     }
 
     for (let i = 0; i < workerCount; i++) {
-      const worker = fork(workerJS_path, [], {
-        execArgv: ['--expose-gc']
-      });
 
-      worker.group = group;
+      let execArgV = [];
+      execArgV.push('--expose-gc');
+      execArgV.push(`--max-old-space-size=${memoryLimit}`);
+      const worker = fork(workerScript, [], { execArgv: execArgV });
+
+      worker.poolName = poolName;
+      worker.memoryLimit = memoryLimit;
+      worker.workerScript = workerScript;
       worker.runningTasks = 0;
 
       worker.on("message", this.processWorkerMessage.bind(this, worker));
-      worker.on("exit", this.manageWorkerExit.bind(this, worker, group));
+      worker.on("exit", this.manageWorkerExit.bind(this, worker, poolName));
 
       worker.send({ type: MESSAGE_TYPES.INIT });
 
       this.workerSet.add(worker);
-      this.workerGroups.get(group).add(worker);
+      this.workerPools.get(poolName).add(worker);
     }
   }
 
@@ -62,7 +85,7 @@ class WorkerPool {
 
     switch (message.type) {
       case MESSAGE_TYPES.INIT_DONE: {
-        console.log(`workerGroup ${worker.group}, worker pid ${message.data.pid} initialized`);
+        console.log(`Worker initialized: poolName ${worker.poolName}, worker pid ${message.data.pid}, memoryLimit: ${worker.memoryLimit}, workerScript: ${worker.workerScript}`);
         break;
       }
       case MESSAGE_TYPES.WORK_DONE:
@@ -82,20 +105,20 @@ class WorkerPool {
   /**
    * Manages the exit events of worker processes.
    * @param {Object} exitedWorker - The worker that has exited.
-   * @param {string} group - The group the worker belongs to.
+   * @param {string} poolName - The pool the worker belongs to.
    * @param {number} code - The exit code.
    * @param {string} signal - The signal causing the exit.
    */
-  manageWorkerExit(exitedWorker, code, signal, group = "default") {
+  manageWorkerExit(exitedWorker, code, signal, poolName = "default") {
     console.warn(
       `Worker ${exitedWorker.pid} exited with code ${code} and signal ${signal}`
     );
     this.workerSet.delete(exitedWorker);
-    this.workerGroups.get(group).delete(exitedWorker);
+    this.workerPools.get(poolName).delete(exitedWorker);
 
     if (code !== 0) {
       console.warn(`Restarting worker ${exitedWorker.pid}...`);
-      this.spawnWorkers(1, group);
+      this.spawnWorkers(1, poolName);
     }
   }
 
@@ -106,9 +129,9 @@ class WorkerPool {
     if (!this.pendingTasks.length) return;
 
     const { task, callback } = this.pendingTasks.shift();
-    const workerGroup = this.workerGroups.get(task.group || "default") || this.workerSet;
+    const workerPool = this.workerPools.get(task.poolName || "default") || this.workerSet;
 
-    const leastBusyWorker = [...workerGroup].reduce((a, b) =>
+    const leastBusyWorker = [...workerPool].reduce((a, b) =>
       a.runningTasks <= b.runningTasks ? a : b,
     );
 
@@ -121,28 +144,28 @@ class WorkerPool {
    * Adds a task to the queue for processing by worker processes.
    * @param {Object} task - The task to be added.
    * @param {Function} callback - The function to call once the task is processed.
-   * @param {string} group - The group the task belongs to.
+   * @param {string} poolName - The worker pool that should execute the task.
    */
-  addWorkerTask(task, callback, group = "default") {
-    task.group = group;
+  addWorkerTask(task, callback, poolName = "default") {
+    task.poolName = poolName;
     this.pendingTasks.push({ task, callback });
     this.processNextTask();
   }
 
   /**
-   * Retrieves the status of all or specific group of workers.
-   * @param {string} workerGroup - The group of workers to retrieve status for.
+   * Retrieves the status of all or specific pool of workers.
+   * @param {string} poolName - Name of the worker pool to retrieve status for (optional).
    * @returns {Object} - Object containing the status of the workers.
    */
-  async getWorkerStatus(workerGroup = null) {
-    // Get workers from the specified group, or all workers if no group is specified.
-    const targetWorkers = workerGroup ? this.workerGroups.get(workerGroup) : this.workerSet;
+  async getWorkerStatus(poolName = null) {
+    // Get workers from the specified pool, or all workers if no poolName is specified.
+    const targetWorkers = poolName ? this.workerPools.get(poolName) : this.workerSet;
 
     const workers = await Promise.all(
       [...targetWorkers].map(async (worker) => {
         try {
           const stats = await pidusage(worker.pid);
-          return { group: worker.group, pid: worker.pid, runningTasks: worker.runningTasks, stats };
+          return { poolName: worker.poolName, pid: worker.pid, runningTasks: worker.runningTasks, stats };
         } catch (err) {
           return null;
         }
@@ -153,12 +176,12 @@ class WorkerPool {
   }
 
   /**
-   * Terminates all workers or a specific group of workers.
-   * @param {string} group - The group of workers to terminate.
+   * Terminates all workers or a specific pool of workers.
+   * @param {string} poolName - The pool of workers to terminate.
    */
-  terminateWorkers(group = null) {
-    const workersToTerminate = group
-      ? this.workerGroups.get(group)
+  terminateWorkers(poolName = null) {
+    const workersToTerminate = poolName
+      ? this.workerPools.get(poolName)
       : this.workerSet;
 
     workersToTerminate.forEach((worker) => {
