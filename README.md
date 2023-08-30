@@ -38,9 +38,9 @@ The configuration file (`config/default.json`) has two predefined worker pools:
    - **Worker Count**: 2
    - **Memory Limit**: 4048 MB
 
-1. *CPU Load Worker* (`./workers/exampleWorker_CPULoad.js`): This worker simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
+*CPU Load Worker* (`./workers/exampleWorker_CPULoad.js`): This worker simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
 
-2. *Memory Usage Worker* (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
+*Memory Usage Worker* (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
 ### Dispatching Tasks to example Worker Pools
 
