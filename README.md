@@ -54,7 +54,7 @@ Send a POST request to `/example/oneShot` with the following body:
 ```json
 {
   "workerScript": "<Path to the worker's JavaScript file>",
-  "workerMemoryLimit": "<Memory limit in MB>",
+  "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>",
   "workerTask": "<Task data>"
 }
 ```
