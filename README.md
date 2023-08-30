@@ -42,7 +42,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 
 *Memory Usage Worker* (`./workers/exampleWorker_MemoryUsage.js`): This worker simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
-### Dispatching Tasks to example Worker Pools
+### Dispatching Tasks to Example Worker Pools
 
 Send a POST request to `/example/pool` with the following body:
 
@@ -53,7 +53,7 @@ Send a POST request to `/example/pool` with the following body:
 }
 ```
 
-### Dispatching Tasks to example One-shot Processes
+### Dispatching Tasks to Example One-Shot Worker
 
 Send a POST request to `/example/oneShot` with the following body:
 
