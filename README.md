@@ -41,7 +41,7 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 `./workers/exampleWorker_CPULoad.js` This worker script simulates CPU load for a given duration. The main function is `generateCPULoad(ms)` where `ms` is the duration in milliseconds.
 `./workers/exampleWorker_MemoryUsage.js` This worker script simulates memory usage of a given amount for a given duration. The main function is `simulateMemoryUsage(mb, duration)` where `mb` is the memory amount in MB and `duration` is the duration in milliseconds.
 
-## Dispatching Tasks for the Example Worker Pools
+## Dispatching Tasks to the Example Worker Pools
 ### Send a POST request to `/example/pool` with the following payload:
      {
        "poolName": "<Name of the worker pool>",
