@@ -1,4 +1,3 @@
-
 const exampleWorkerManager = require("./workerManager"); // Imports the worker manager module, which handles the creation, management, and communication with worker processes.
 const express = require("express"); // Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
 const bodyParser = require("body-parser"); // body-parser is a middleware used to extract the entire body portion of an incoming request stream and exposes it on `req.body`. It's used to parse incoming request bodies in a middleware before your handlers.
@@ -26,13 +25,17 @@ initializeServer();
  */
 function initializeServer() {
 
-
-    exampleWorkerManager.initWorkerPools(config.get('workerPool'))
-
-    // Periodically log worker stats mainly for debugging purposes
-    setInterval(() => {
-        logWorkerStats();
-    }, 1000);
+    if (config.has('workerPool')) {
+        exampleWorkerManager.initWorkerPools(config.get('workerPool'))
+        // Periodically log worker stats mainly for debugging purposes
+        if (config.has('logWorkerStats') && config.get('logWorkerStats') === true) {
+            setInterval(() => {
+                logWorkerStats();
+            }, 1000);
+        }
+    } else {
+        logger.warn("no 'workerPool' in config");
+    }
 
     // Set up HTTP routes for the server
     setupHTTP_routes();
@@ -52,60 +55,72 @@ function initializeServer() {
  * Handles the termination of the process by shutting down worker processes gracefully.
  */
 function processTermination() {
-    exampleWorkerManager.terminateWorkers('CPU');
-    exampleWorkerManager.terminateWorkers('MEM');
+    exampleWorkerManager.terminateWorkers();
+    //exampleWorkerManager.terminateWorkers('MEM');
     process.exit(0);
 }
 
 /**
- * Logs the status of workers, including their CPU and memory usage.
- * @param {string|null} poolName - Name of the worker pool to retrieve status for (optional).
+ * Logs the stats of workers, including their CPU and memory usage.
+ * @param {string|null} poolName - Name of the worker pool to retrieve stats for (optional).
  */
 async function logWorkerStats(poolName = null) {
-    const statuses = await exampleWorkerManager.getWorkerStatus(poolName);
-    for (const worker of statuses.workers) {
-        console.log(`Worker stats: poolName ${worker.poolName}, worker pid ${worker.pid}, cpu:${parseInt(worker.stats.cpu)}% mem:${parseInt(worker.stats.memory / 1000 / 1000)}MB runningTasks:${worker.runningTasks}`);
+    const stats = await exampleWorkerManager.getWorkerStats(poolName);
+    if (stats?.workers && stats?.workers?.length) {
+        for (const worker of stats.workers) {
+            console.log(`Worker stats: poolName ${worker.poolName}, worker pid ${worker.pid}, cpu:${parseInt(worker.stats.cpu)}% mem:${parseInt(worker.stats.memory / 1000 / 1000)}MB runningTasks:${worker.runningTasks}`);
+        }
+        console.log("---------------------------");
     }
-    console.log("---------------------------");
 }
 
 /**
  * Sets up HTTP routes for dispatching tasks to workers.
  */
 function setupHTTP_routes() {
-    // Endpoint to dispatch a CPU load task to a worker
-    app.post(`/exampleWorker/CPULoad`, async (req, res) => {
+
+    // pool worker example endpoint
+    app.post(`/example/pool`, async (req, res) => {
         try {
-            exampleWorkerManager.addWorkerTask({ id: uuidv4(), type: "work", data: req.body },
-                (message) => {
-                    if (message.ok) {
-                        res.status(200).send(message);
-                    } else {
-                        res.status(500).send(message);
-                    }
-                }, 'CPU'
-            );
+            const poolName = req.body.poolName;
+            const workerTask = req.body.workerTask;
+            const task = { id: uuidv4(), type: "work", data: workerTask };
+            const callback = function (message) {
+                if (message.ok) {
+                    res.status(200).send(message);
+                } else {
+                    res.status(500).send(message);
+                }
+            };
+            let result = exampleWorkerManager.executePoolWorkerTask(task, callback, poolName);
+            if (!result.ok) {
+                res.status(500).send({ error: result.message });
+            }
         } catch (err) {
             // Handle any errors that occur while sending the task
             res.status(500).send({ error: err.message });
         }
     });
 
-    // Endpoint to dispatch a memory usage task to a worker
-    app.post(`/exampleWorker/MemoryUsage`, async (req, res) => {
+    // one-shot worker example endpoint
+    app.post(`/example/oneShot`, async (req, res) => {
         try {
-            exampleWorkerManager.addWorkerTask({ id: uuidv4(), type: "work", data: req.body },
-                (message) => {
-                    if (message.ok) {
-                        res.status(200).send(message);
-                    } else {
-                        res.status(500).send(message);
-                    }
-                }, 'MEM'
-            );
+            const workerScript = req.body.workerScript;
+            const workerMemoryLimit = req.body.workerMemoryLimit;
+            const workerTask = req.body.workerTask;
+            const task = { id: uuidv4(), type: "work", data: workerTask };
+            const callback = function (message) {
+                if (message.ok) {
+                    res.status(200).send(message);
+                } else {
+                    res.status(500).send(message);
+                }
+            };
+            exampleWorkerManager.executeOneShotWorkerTask(workerScript, task, callback, workerMemoryLimit);
         } catch (err) {
             // Handle any errors that occur while sending the task
             res.status(500).send({ error: err.message });
         }
     });
+
 }

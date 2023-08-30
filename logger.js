@@ -16,7 +16,7 @@ const myFormat = winston.format.printf(({ timestamp, level, message }) => {
 });
 
 const logger = winston.createLogger({
-    level: "info", // Log only if info.level <= this level
+    level: "debug", // Log only if info.level <= this level
     format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.json(),
@@ -31,16 +31,14 @@ const logger = winston.createLogger({
             maxFiles: "14d",
             format: winston.format.combine(winston.format.timestamp(), myFormat),
         }),
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.colorize(),
+                myFormat
+            ),
+        }),
     ],
 });
-
-logger.add(
-    new winston.transports.Console({
-        format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple(),
-        ),
-    }),
-);
 
 module.exports = logger;

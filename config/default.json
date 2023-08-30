@@ -11,7 +11,7 @@
             "poolName": "CPU",
             "workerScript": "./workers/exampleWorker_CPULoad.js",
             "workerCount": 1,
-            "workerMemoryLimit": 8048
+            "workerMemoryLimit": 4048
         },
         {
             "poolName": "MEM",
@@ -19,5 +19,6 @@
             "workerCount": 1,
             "workerMemoryLimit": 4048
         }
-    ]
+    ],
+    "logWorkerStats": true
 }

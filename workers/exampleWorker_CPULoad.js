@@ -14,6 +14,7 @@ process.on("message", async (task) => {
     await processTask(task);
   } catch (err) {
     reportError(task, err);
+    throw err;
   }
 });
 
@@ -71,20 +72,9 @@ function reportError(task, err) {
  * @returns {Object} - An object containing the worker's PID.
  */
 function init() {
-  // Set up listeners for unhandled errors and rejections.
-  process.on("uncaughtException", (err) => {
-    console.error(`Uncaught exception in worker ${process.pid}:`, err);
-  });
-
-  process.on("unhandledRejection", (reason) => {
-    console.error(
-      `Unhandled promise rejection in worker ${process.pid}:`,
-      reason,
-    );
-  });
-
   return { pid: process.pid };
 }
+
 
 /**
  * Processes a given task.

@@ -14,6 +14,7 @@ process.on("message", async (task) => {
     await processTask(task);
   } catch (err) {
     reportError(task, err);
+    throw err;
   }
 });
 
@@ -71,18 +72,6 @@ function reportError(task, err) {
  * @returns {Object} - An object containing the worker's PID.
  */
 function init() {
-  // Set up listeners for unhandled errors and rejections.
-  process.on("uncaughtException", (err) => {
-    console.error(`Uncaught exception in worker ${process.pid}:`, err);
-  });
-
-  process.on("unhandledRejection", (reason) => {
-    console.error(
-      `Unhandled promise rejection in worker ${process.pid}:`,
-      reason,
-    );
-  });
-
   return { pid: process.pid };
 }
 
@@ -111,8 +100,14 @@ async function simulateMemoryUsage(mb, duration) {
   const memoryChunks = [];
 
   for (let j = 0; j < 10; j++) {
-    const buffer = Buffer.alloc(sizePerChunk);
-    buffer.fill(0);
+    //const buffer = Buffer.alloc(sizePerChunk);
+    //buffer.fill(0);
+    const buffer = new ArrayBuffer(sizePerChunk);
+    const uint8View = new Uint8Array(buffer);
+    for (let i = 0; i < uint8View.length; i++) {
+      uint8View[i] = 0xFF;
+    }
+
     memoryChunks.push(buffer);
   }
 

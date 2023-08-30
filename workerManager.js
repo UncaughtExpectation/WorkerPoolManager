@@ -36,43 +36,62 @@ class WorkerPool {
         logger.error(`missing poolName in worker pool config`);
         continue;
       }
-      this.spawnWorkers(config.workerCount || 1, config.workerScript, config.poolName, config.workerMemoryLimit || 1);
+      for (let i = 0; i < config.workerCount; i++) {
+        this.spawnPoolWorker(config.workerScript, config.poolName, config.workerMemoryLimit || 1);
+      }
     }
   }
 
   /**
-   * Spawns worker processes.
-   * @param {number} workerCount - The number of worker processes to spawn.
+   * Spawns pool worker processes.
    * @param {string} workerJS_path - Path to the worker's JavaScript file.
    * @param {string} poolName - Name of the worker pool.
    * @param {string} memoryLimit - memory limit of the workers (--max-old-space-size)
    */
-  spawnWorkers(workerCount = 2, workerScript, poolName = "default", memoryLimit = 4096) {
+  spawnPoolWorker(workerScript, poolName, memoryLimit = 4096) {
     // Initialize the pool if not already present
     if (!this.workerPools.has(poolName)) {
       this.workerPools.set(poolName, new Set());
     }
 
-    for (let i = 0; i < workerCount; i++) {
+    let execArgV = [];
+    execArgV.push('--expose-gc');
+    execArgV.push(`--max-old-space-size=${memoryLimit}`);
+    const worker = fork(workerScript, [], { execArgv: execArgV });
 
-      let execArgV = [];
-      execArgV.push('--expose-gc');
-      execArgV.push(`--max-old-space-size=${memoryLimit}`);
-      const worker = fork(workerScript, [], { execArgv: execArgV });
+    worker.poolName = poolName;
+    worker.memoryLimit = memoryLimit;
+    worker.workerScript = workerScript;
+    worker.runningTasks = 0;
 
-      worker.poolName = poolName;
-      worker.memoryLimit = memoryLimit;
-      worker.workerScript = workerScript;
-      worker.runningTasks = 0;
+    worker.on("message", this.processPoolWorkerMessage.bind(this, worker));
+    worker.on("exit", this.managePoolWorkerExit.bind(this, worker, poolName));
 
-      worker.on("message", this.processWorkerMessage.bind(this, worker));
-      worker.on("exit", this.manageWorkerExit.bind(this, worker, poolName));
+    worker.send({ type: MESSAGE_TYPES.INIT });
 
-      worker.send({ type: MESSAGE_TYPES.INIT });
+    this.workerSet.add(worker);
+    this.workerPools.get(poolName).add(worker);
+  }
 
-      this.workerSet.add(worker);
-      this.workerPools.get(poolName).add(worker);
-    }
+  /**
+  * Spawns a one-shot worker processes.
+  * @param {string} workerJS_path - Path to the worker's JavaScript file.
+  * @param {string} poolName - Name of the worker pool.
+  * @param {string} memoryLimit - memory limit of the workers (--max-old-space-size)
+  */
+  spawnOneShotWorker(workerScript, memoryLimit = 4096) {
+    let execArgV = [];
+    execArgV.push('--expose-gc');
+    execArgV.push(`--max-old-space-size=${memoryLimit}`);
+    const worker = fork(workerScript, [], { execArgv: execArgV });
+
+    worker.memoryLimit = memoryLimit;
+    worker.workerScript = workerScript;
+
+    worker.on("message", this.processOneShotWorkerMessage.bind(this, worker));
+    //worker.send({ type: MESSAGE_TYPES.INIT });
+    logger.debug(`OneShotWorker pid ${worker.pid} spawned, script ${workerScript}`)
+    return worker;
   }
 
   /**
@@ -80,12 +99,12 @@ class WorkerPool {
    * @param {Object} worker - The worker sending the message.
    * @param {Object} message - The actual message content.
    */
-  processWorkerMessage(worker, message) {
+  processPoolWorkerMessage(worker, message) {
     if (!message) return;
 
     switch (message.type) {
       case MESSAGE_TYPES.INIT_DONE: {
-        console.log(`Worker initialized: poolName ${worker.poolName}, worker pid ${message.data.pid}, memoryLimit: ${worker.memoryLimit}, workerScript: ${worker.workerScript}`);
+        logger.debug(`Worker initialized: poolName ${worker.poolName}, worker pid ${message.data.pid}, memoryLimit: ${worker.memoryLimit}, workerScript: ${worker.workerScript}`);
         break;
       }
       case MESSAGE_TYPES.WORK_DONE:
@@ -103,22 +122,38 @@ class WorkerPool {
   }
 
   /**
+   * Processes messages received from one-shot worker processes.
+   * @param {Object} worker - The worker sending the message.
+   * @param {Object} message - The actual message content.
+   */
+  processOneShotWorkerMessage(worker, message) {
+    if (!message) return;
+    const callback = this.taskCallbacks.get(message.id);
+    if (callback) {
+      callback(message);
+      this.taskCallbacks.delete(message.id);
+      worker.send({ type: MESSAGE_TYPES.TERMINATE });
+      worker.on("exit", (exitCode) => logger.debug(`OneShotWorker pid ${worker.pid} exited with code ${exitCode}.`));
+    }
+  }
+
+  /**
    * Manages the exit events of worker processes.
-   * @param {Object} exitedWorker - The worker that has exited.
+   * @param {Object} worker - The worker that has exited.
    * @param {string} poolName - The pool the worker belongs to.
    * @param {number} code - The exit code.
    * @param {string} signal - The signal causing the exit.
    */
-  manageWorkerExit(exitedWorker, code, signal, poolName = "default") {
-    console.warn(
-      `Worker ${exitedWorker.pid} exited with code ${code} and signal ${signal}`
+  managePoolWorkerExit(worker, code, signal) {
+    logger.warn(
+      `Worker ${worker.pid} exited with code ${code} and signal ${signal}`
     );
-    this.workerSet.delete(exitedWorker);
-    this.workerPools.get(poolName).delete(exitedWorker);
+    this.workerSet.delete(worker);
+    this.workerPools.get(worker.poolName).delete(worker);
 
     if (code !== 0) {
-      console.warn(`Restarting worker ${exitedWorker.pid}...`);
-      this.spawnWorkers(1, poolName);
+      logger.warn(`Restarting worker ${worker.pid}...`);
+      this.spawnPoolWorker(worker.workerScript, worker.poolName, worker.workerMemoryLimit || 1);
     }
   }
 
@@ -129,7 +164,7 @@ class WorkerPool {
     if (!this.pendingTasks.length) return;
 
     const { task, callback } = this.pendingTasks.shift();
-    const workerPool = this.workerPools.get(task.poolName || "default") || this.workerSet;
+    const workerPool = this.workerPools.get(task.poolName) || this.workerSet;
 
     const leastBusyWorker = [...workerPool].reduce((a, b) =>
       a.runningTasks <= b.runningTasks ? a : b,
@@ -146,18 +181,39 @@ class WorkerPool {
    * @param {Function} callback - The function to call once the task is processed.
    * @param {string} poolName - The worker pool that should execute the task.
    */
-  addWorkerTask(task, callback, poolName = "default") {
+  executePoolWorkerTask(task, callback, poolName) {
+    let res = { ok: true };
+
+    let pool = this.workerPools.get(poolName)
+    if (!pool) {
+      res.ok = false;
+      res.message = `Worker pool ${poolName} does not exists`;
+      return res;
+    }
     task.poolName = poolName;
     this.pendingTasks.push({ task, callback });
     this.processNextTask();
+    return res;
+  }
+
+
+  /**
+  * Executes a task in a one-shot-worker. After the tasks is finished, the worker will terminate.
+  * @param {Object} task - The task to be added.
+  * @param {Function} callback - The function to call once the task is processed.
+  */
+  executeOneShotWorkerTask(workerScript, task, callback, memoryLimit = 4096) {
+    let worker = this.spawnOneShotWorker(workerScript, memoryLimit);
+    this.taskCallbacks.set(task.id, callback);
+    worker.send(task);
   }
 
   /**
-   * Retrieves the status of all or specific pool of workers.
-   * @param {string} poolName - Name of the worker pool to retrieve status for (optional).
-   * @returns {Object} - Object containing the status of the workers.
+   * Retrieves the stats of all or specific pool of workers.
+   * @param {string} poolName - Name of the worker pool to retrieve stats for (optional).
+   * @returns {Object} - Object containing the stats of the workers.
    */
-  async getWorkerStatus(poolName = null) {
+  async getWorkerStats(poolName = null) {
     // Get workers from the specified pool, or all workers if no poolName is specified.
     const targetWorkers = poolName ? this.workerPools.get(poolName) : this.workerSet;
 
@@ -184,9 +240,12 @@ class WorkerPool {
       ? this.workerPools.get(poolName)
       : this.workerSet;
 
+    if (!workersToTerminate) {
+      return;
+    }
     workersToTerminate.forEach((worker) => {
       worker.send({ type: MESSAGE_TYPES.TERMINATE });
-      worker.on("exit", () => console.log(`Worker ${worker.pid} has exited.`));
+      worker.on("exit", () => logger.info(`Worker ${worker.pid} has exited.`));
     });
   }
 }

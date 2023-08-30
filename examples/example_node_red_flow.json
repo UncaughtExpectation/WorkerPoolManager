@@ -1,0 +1,358 @@
+[
+    {
+        "id": "6ee14b9cafb1a8ae",
+        "type": "function",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "/example/pool 'CPU'",
+        "func": "node.send({\n    url: \"http://localhost:3000/example/pool\",\n    payload: {\n        workerTask:{duration:3000},\n        poolName:'CPU'\n    }\n})",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "4d755a884419e0f7"
+            ]
+        ]
+    },
+    {
+        "id": "056256b1d951a6f8",
+        "type": "inject",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "6ee14b9cafb1a8ae"
+            ]
+        ]
+    },
+    {
+        "id": "09d00196285e93b9",
+        "type": "debug",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "4d755a884419e0f7",
+        "type": "http request",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "09d00196285e93b9"
+            ]
+        ]
+    },
+    {
+        "id": "2654d5b99afa278e",
+        "type": "function",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "/example/pool 'MEM'",
+        "func": "node.send({\n    url: \"http://localhost:3000/example/pool\",\n    payload: {\n        workerTask: { duration: 3000, mb: 300 },\n        poolName:'MEM'\n    }\n})",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 140,
+        "wires": [
+            [
+                "851daa6cd06a61fb"
+            ]
+        ]
+    },
+    {
+        "id": "4311395b94294f92",
+        "type": "inject",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 140,
+        "wires": [
+            [
+                "2654d5b99afa278e"
+            ]
+        ]
+    },
+    {
+        "id": "9b12fc294ded6f82",
+        "type": "debug",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "851daa6cd06a61fb",
+        "type": "http request",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 630,
+        "y": 140,
+        "wires": [
+            [
+                "9b12fc294ded6f82"
+            ]
+        ]
+    },
+    {
+        "id": "10323eee314676e8",
+        "type": "function",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "/example/oneShot exampleWorker_CPULoad.js",
+        "func": "node.send({\n    url: \"http://localhost:3000/example/oneShot \",\n    payload: {\n        workerTask:{duration:3000},\n        workerScript:'./workers/exampleWorker_CPULoad.js'\n    }\n})",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 220,
+        "wires": [
+            [
+                "14683a62a34152c9"
+            ]
+        ]
+    },
+    {
+        "id": "b3e8cd32e6940a73",
+        "type": "inject",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 220,
+        "wires": [
+            [
+                "10323eee314676e8"
+            ]
+        ]
+    },
+    {
+        "id": "5c2b71a5f2b409d8",
+        "type": "debug",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "debug 15",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "14683a62a34152c9",
+        "type": "http request",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 750,
+        "y": 220,
+        "wires": [
+            [
+                "5c2b71a5f2b409d8"
+            ]
+        ]
+    },
+    {
+        "id": "920214d900700de7",
+        "type": "function",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "/example/oneShot exampleWorker_MemoryUsage.js",
+        "func": "node.send({\n    url: \"http://localhost:3000/example/oneShot \",\n    payload: {\n        workerTask:{duration:3000,mb:300},\n        workerScript:'./workers/exampleWorker_MemoryUsage.js',\n        workerMemoryLimit:4096\n    }\n})",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 260,
+        "wires": [
+            [
+                "50ab9da0457e7560"
+            ]
+        ]
+    },
+    {
+        "id": "f382018d50dea899",
+        "type": "inject",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 260,
+        "wires": [
+            [
+                "920214d900700de7"
+            ]
+        ]
+    },
+    {
+        "id": "a8040364cf26f4f4",
+        "type": "debug",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "debug 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "50ab9da0457e7560",
+        "type": "http request",
+        "z": "c4ebb9c88c7f85d9",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 750,
+        "y": 260,
+        "wires": [
+            [
+                "a8040364cf26f4f4"
+            ]
+        ]
+    }
+]
