@@ -44,10 +44,9 @@ The configuration file (`config/default.json`) has two predefined worker pools:
 
 ## Dispatching Tasks for the Example Worker Pools
 Send a POST request to `/example/pool` with the following payload:
-
      {
-       "poolName": "<Name of the worker pool>",
-       "workerTask": {<Task data>}
+       "poolName": <Name of the worker pool>,
+       "workerTask": <Task data>
      }
 ### Example Requests
 ##### Generate CPU usage
