@@ -1,6 +1,6 @@
 {
   "name": "workerprocesstest",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A Node.js application that manages and monitors worker processes.",
   "main": "app.js",
   "scripts": {
