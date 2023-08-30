@@ -52,20 +52,7 @@ Send a POST request to `/example/pool` with the following body:
   "workerTask": "<Task data>"
 }
 ```
-
-### Dispatching Tasks to Example One-Shot Worker
-
-Send a POST request to `/example/oneShot` with the following body:
-
-```json
-{
-  "workerScript": "<Path to the worker's JavaScript file>",
-  "workerTask": "<Task data>",
-  "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
-}
-```
-
-### Example Requests for Pool Workers
+## Example Requests for Pool Workers
    - **Endpoint**: `/example/pool`
    - **Payload**:
      ```json
@@ -82,7 +69,18 @@ Send a POST request to `/example/oneShot` with the following body:
      }
      ```
      
-### Example Requests for One-Shot Workers
+### Dispatching Tasks to Example One-Shot Worker
+
+Send a POST request to `/example/oneShot` with the following body:
+
+```json
+{
+  "workerScript": "<Path to the worker's JavaScript file>",
+  "workerTask": "<Task data>",
+  "workerMemoryLimit": "<Memory limit in MB, optional, default 4096 MB>"
+}
+```    
+## Example Requests for One-Shot Workers
    - **Endpoint**: `/example/oneShot`
    - **Payload**:
      ```json
