@@ -5,8 +5,8 @@ const logger = require("./logger"); // Imports a custom logger module based on t
 const config = require('config'); // The 'config' module provides a way to organize hierarchical configurations for your app deployments. It lets you define a set of default parameters, and extend them for different deployment environments (e.g., development, QA, production).
 
 // Configuration values from the file /config/default.js
-const PORT = config.get('server.port');
-const REQUEST_BODY_LIMIT = config.get('server.requestBodyLimit');
+const PORT = config.get('httpServerConfig.port');
+const REQUEST_BODY_LIMIT = config.get('httpServerConfig.requestBodyLimit');
 
 const app = express();
 
