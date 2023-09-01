@@ -1,7 +1,6 @@
 const exampleWorkerManager = require("./workerManager"); // Imports the worker manager module, which handles the creation, management, and communication with worker processes.
 const express = require("express"); // Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
 const bodyParser = require("body-parser"); // body-parser is a middleware used to extract the entire body portion of an incoming request stream and exposes it on `req.body`. It's used to parse incoming request bodies in a middleware before your handlers.
-const { v4: uuidv4 } = require("uuid"); // The 'uuid' library is used to generate universally unique identifiers (UUIDs). Here, we're specifically using the v4 method, which produces random UUIDs.
 const logger = require("./logger"); // Imports a custom logger module based on the 'winston' module
 const config = require('config'); // The 'config' module provides a way to organize hierarchical configurations for your app deployments. It lets you define a set of default parameters, and extend them for different deployment environments (e.g., development, QA, production).
 
@@ -76,15 +75,16 @@ async function logWorkerStats(poolName = null) {
 
 /**
  * Sets up HTTP routes for dispatching tasks to workers.
+ * 
+ * The `/example/pool` endpoint is for dispatching tasks to a specific worker pool.
+ * The `/example/oneShot` endpoint is for dispatching tasks to a one-shot worker.
  */
 function setupHTTP_routes() {
 
     // pool worker example endpoint
     app.post(`/example/pool`, async (req, res) => {
         try {
-            const poolName = req.body.poolName;
-            const workerTask = req.body.workerTask;
-            const task = { id: uuidv4(), type: "work", data: workerTask };
+            const { poolName, workerTask } = req.body;
             const callback = function (message) {
                 if (message.ok) {
                     res.status(200).send(message);
@@ -92,7 +92,7 @@ function setupHTTP_routes() {
                     res.status(500).send(message);
                 }
             };
-            let result = exampleWorkerManager.executePoolWorkerTask(task, callback, poolName);
+            let result = exampleWorkerManager.executePoolWorkerTask({ type: "work", data: workerTask }, callback, poolName);
             if (!result.ok) {
                 res.status(500).send({ error: result.message });
             }
@@ -105,10 +105,7 @@ function setupHTTP_routes() {
     // one-shot worker example endpoint
     app.post(`/example/oneShot`, async (req, res) => {
         try {
-            const workerScript = req.body.workerScript;
-            const workerMemoryLimit = req.body.workerMemoryLimit;
-            const workerTask = req.body.workerTask;
-            const task = { id: uuidv4(), type: "work", data: workerTask };
+            const { workerScript, workerTask, workerMemoryLimit } = req.body;
             const callback = function (message) {
                 if (message.ok) {
                     res.status(200).send(message);
@@ -116,7 +113,7 @@ function setupHTTP_routes() {
                     res.status(500).send(message);
                 }
             };
-            exampleWorkerManager.executeOneShotWorkerTask(workerScript, task, callback, workerMemoryLimit);
+            exampleWorkerManager.executeOneShotWorkerTask(workerScript, { type: "work", data: workerTask }, callback, workerMemoryLimit);
         } catch (err) {
             // Handle any errors that occur while sending the task
             res.status(500).send({ error: err.message });
