@@ -3,8 +3,7 @@ const pidusage = require("pidusage"); // 'pidusage' is a library that provides i
 const logger = require("./logger"); // Imports a custom logger module based on the 'winston' module
 const { v4: uuidv4 } = require("uuid"); // The 'uuid' library is used to generate universally unique identifiers (UUIDs). Here, we're specifically using the v4 method, which produces random UUIDs.
 
-// Constants for different message types to ensure consistency and clarity.
-const MESSAGE_TYPES = {
+const WORKER_MESSAGE_TYPES = {
   INIT: "init",
   INIT_DONE: "initDone",
   WORK_DONE: "workDone",
@@ -37,7 +36,7 @@ class WorkerPool {
         continue;
       }
       for (let i = 0; i < config.workerCount; i++) {
-        this.#spawnPoolWorker(config.workerScript, config.poolName, config.workerMemoryLimit || 1);
+        this.#spawnPoolWorker(config.workerScript, config.poolName, config.workerMemoryLimit);
       }
     }
   }
@@ -52,14 +51,15 @@ class WorkerPool {
   executePoolWorkerTask(task, callback, poolName) {
     let res = { ok: true };
 
-    task.id = uuidv4();
-
     let pool = this.#workerPools.get(poolName)
     if (!pool) {
       res.ok = false;
       res.message = `Worker pool ${poolName} does not exists`;
       return res;
     }
+
+    task.id = uuidv4();
+    task.type = "work";
     task.poolName = poolName;
     this.#pendingTasks.push({ task, callback });
     this.#processNextTask();
@@ -74,6 +74,9 @@ class WorkerPool {
   */
   executeOneShotWorkerTask(workerScript, task, callback, memoryLimit = 4096) {
     let worker = this.#spawnOneShotWorker(workerScript, memoryLimit);
+
+    task.id = uuidv4();
+    task.type = "work";
     this.#taskCallbacks.set(task.id, callback);
     worker.send(task);
   }
@@ -114,7 +117,7 @@ class WorkerPool {
       return;
     }
     workersToTerminate.forEach((worker) => {
-      worker.send({ type: MESSAGE_TYPES.TERMINATE });
+      worker.send({ type: WORKER_MESSAGE_TYPES.TERMINATE });
       worker.on("exit", () => logger.info(`Worker ${worker.pid} has exited.`));
     });
   }
@@ -144,7 +147,7 @@ class WorkerPool {
     worker.on("message", this.#processPoolWorkerMessage.bind(this, worker));
     worker.on("exit", this.#managePoolWorkerExit.bind(this, worker, poolName));
 
-    worker.send({ type: MESSAGE_TYPES.INIT });
+    worker.send({ type: WORKER_MESSAGE_TYPES.INIT });
 
     this.#workerSet.add(worker);
     this.#workerPools.get(poolName).add(worker);
@@ -166,7 +169,7 @@ class WorkerPool {
     worker.workerScript = workerScript;
 
     worker.on("message", this.#processOneShotWorkerMessage.bind(this, worker));
-    //worker.send({ type: MESSAGE_TYPES.INIT });
+    //worker.send({ type: WORKER_MESSAGE_TYPES.INIT });
     logger.debug(`OneShotWorker pid ${worker.pid} spawned, script ${workerScript}`)
     return worker;
   }
@@ -180,12 +183,12 @@ class WorkerPool {
     if (!message) return;
 
     switch (message.type) {
-      case MESSAGE_TYPES.INIT_DONE: {
+      case WORKER_MESSAGE_TYPES.INIT_DONE: {
         logger.debug(`Worker initialized: poolName ${worker.poolName}, worker pid ${message.data.pid}, memoryLimit: ${worker.memoryLimit}, workerScript: ${worker.workerScript}`);
         break;
       }
-      case MESSAGE_TYPES.WORK_DONE:
-      case MESSAGE_TYPES.ERROR: {
+      case WORKER_MESSAGE_TYPES.WORK_DONE:
+      case WORKER_MESSAGE_TYPES.ERROR: {
         worker.runningTasks--;
         const callback = this.#taskCallbacks.get(message.id);
         if (callback) {
@@ -209,7 +212,7 @@ class WorkerPool {
     if (callback) {
       callback(message);
       this.#taskCallbacks.delete(message.id);
-      worker.send({ type: MESSAGE_TYPES.TERMINATE });
+      worker.send({ type: WORKER_MESSAGE_TYPES.TERMINATE });
       worker.on("exit", (exitCode) => logger.debug(`OneShotWorker pid ${worker.pid} exited with code ${exitCode}.`));
     }
   }

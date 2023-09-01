@@ -92,7 +92,7 @@ function setupHTTP_routes() {
                     res.status(500).send(message);
                 }
             };
-            let result = exampleWorkerManager.executePoolWorkerTask({ type: "work", data: workerTask }, callback, poolName);
+            let result = exampleWorkerManager.executePoolWorkerTask({ data: workerTask }, callback, poolName);
             if (!result.ok) {
                 res.status(500).send({ error: result.message });
             }
@@ -113,7 +113,7 @@ function setupHTTP_routes() {
                     res.status(500).send(message);
                 }
             };
-            exampleWorkerManager.executeOneShotWorkerTask(workerScript, { type: "work", data: workerTask }, callback, workerMemoryLimit);
+            exampleWorkerManager.executeOneShotWorkerTask(workerScript, { data: workerTask }, callback, workerMemoryLimit);
         } catch (err) {
             // Handle any errors that occur while sending the task
             res.status(500).send({ error: err.message });
