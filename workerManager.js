@@ -1,6 +1,7 @@
 const { fork } = require("child_process"); // The 'child_process' module provides the ability to spawn subprocesses. The 'fork' method is a special case of 'spawn' that spawns a new instance of the V8 engine. 
 const pidusage = require("pidusage"); // 'pidusage' is a library that provides information about the resource usage (CPU and memory) of a process based on its PID (Process ID). 
 const logger = require("./logger"); // Imports a custom logger module based on the 'winston' module
+const { v4: uuidv4 } = require("uuid"); // The 'uuid' library is used to generate universally unique identifiers (UUIDs). Here, we're specifically using the v4 method, which produces random UUIDs.
 
 // Constants for different message types to ensure consistency and clarity.
 const MESSAGE_TYPES = {
@@ -183,6 +184,8 @@ class WorkerPool {
    */
   executePoolWorkerTask(task, callback, poolName) {
     let res = { ok: true };
+
+    task.id = uuidv4();
 
     let pool = this.workerPools.get(poolName)
     if (!pool) {
